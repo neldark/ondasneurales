@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<button onclick="start()">Iniciar sonido</button>
+<button onclick="stop()">Detener sonido</button>
+
+<p>
+  Selecciona la banda de ondas cerebrales: 
+  <select id="waveband" onchange="updateExplanation()">
+    <option value="2.5">Delta</option>
+    <option value="6">Theta</option>
+    <option value="10">Alpha</option>
+    <option value="15">Beta</option>
+    <option value="30">Gamma</option>
+  </select>
+</p>
+
+<p id="explanation">Las ondas Delta están asociadas con el sueño profundo sin sueños.</p>
+
+<script>
+let context = new (window.AudioContext || window.webkitAudioContext)();
+let osc1, osc2, g1, g2;
+
+function updateExplanation() {
+  let waveband = document.getElementById("waveband").value;
+  let explanation;
+  switch(waveband) {
+    case '2.5':
+      explanation = "Las ondas Delta están asociadas con el sueño profundo sin sueños.";
+      break;
+    case '6':
+      explanation = "Las ondas Theta están asociadas con el sueño REM y la meditación.";
+      break;
+    case '10':
+      explanation = "Las ondas Alpha están asociadas con la relajación y la calma.";
+      break;
+    case '15':
+      explanation = "Las ondas Beta están asociadas con la concentración y el pensamiento activo.";
+      break;
+    case '30':
+      explanation = "Las ondas Gamma están asociadas con la percepción y la conciencia.";
+      break;
+  }
+  document.getElementById("explanation").textContent = explanation;
+}
+
+function start() {
+  // Detener los osciladores existentes, si los hay
+  if (osc1) {
+    osc1.stop();
+    osc2.stop();
+  }
+
+  // Crear dos osciladores
+  osc1 = context.createOscillator();
+  osc2 = context.createOscillator();
+
+  // Configurar las frecuencias
+  let freqDifference = document.getElementById("waveband").value;
+  osc1.frequency.value = 440.0; // Frecuencia base
+  osc2.frequency.value = 440.0 + parseFloat(freqDifference); // Frecuencia base más la diferencia
+
+  // Crear dos nodos de ganancia para controlar el volumen
+  g1 = context.createGain();
+  g2 = context.createGain();
+  
+  // Configurar el volumen
+  g1.gain.value = 0.5;
+  g2.gain.value = 0.5;
+
+  // Conectar los osciladores a los nodos de ganancia y luego al destino de audio
+  osc1.connect(g1).connect(context.destination);
+  osc2.connect(g2).connect(context.destination);
+
+  // Iniciar los osciladores
+  osc1.start();
+  osc2.start();
+}
+
+function stop() {
+  // Detener los osciladores
+  if (osc1) {
+    osc1.stop();
+    osc2.stop();
+  }
+}
+
+</script>
+
+</body>
+</html>
